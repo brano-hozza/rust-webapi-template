@@ -1,0 +1,29 @@
+[package]
+name = "rust-webapi-template"
+version = "0.1.0"
+edition = "2021"
+authors = ["Branislav Hozza <brankohozza@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/brano-hozza/"
+readme = "README.md"
+description = "Rust WebApi template."
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+actix-web = "4.3.1"
+diesel = { version = "2.1.0", features = ["r2d2", "postgres", "chrono", "uuid", "serde_json"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0" }
+dotenv = { version = "0.15" }
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1.4.1", features = ["serde", "v4"] }
+bcrypt = { version = "0.15.0" }
+log = { version = "0.4.17" }
+env_logger = { version = "0.10.0" }
+futures = { version = "0.3" }
+actix-cors = { version = "0.6.4" }
+r2d2 = "0.8.10"
+diesel_migrations = "2.1.0"
+async-trait = "0.1.72"
+thiserror = "1.0.44"
