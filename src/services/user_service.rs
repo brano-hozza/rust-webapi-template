@@ -1,4 +1,6 @@
+use std::str::FromStr;
 use actix_web::web::Json;
+use uuid::Uuid;
 use crate::dtos::user::SignupUserDTO;
 use crate::models::user::User;
 use crate::repositories::user_repository::{UserRepository, UserRepositoryImpl};
@@ -23,5 +25,8 @@ impl UserServiceImpl{
 
     pub fn get_all_users(&self) -> Result<Vec<User>, AppError>{
         self.user_repository.find_all()
+    }
+    pub fn delete_user(&self, user_id: String) -> Result<(), AppError>{
+        self.user_repository.delete(Uuid::from_str(user_id.as_str()).unwrap())
     }
 }
