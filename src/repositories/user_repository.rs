@@ -1,4 +1,4 @@
-use diesel::{debug_query, QueryDsl, RunQueryDsl, SelectableHelper};
+use diesel::{debug_query, QueryDsl, QueryResult, RunQueryDsl, SelectableHelper};
 use diesel::pg::Pg;
 use crate::utils::db::DbPool;
 use crate::models::user::{SignupUser, User};
@@ -59,10 +59,13 @@ impl UserRepository for UserRepositoryImpl {
 
     fn find_all(&self) -> Result<Vec<User>, AppError> {
         let conn = &mut self.pool.get()?;
-        let t = users::table.select(User::as_select());
-        let users = match t.get_results(conn).ok() {
-            None => Vec::<User>::new(),
-            Some(users) => users
+        let query = users::table.select(User::as_select());
+        let users = match query.get_results(conn){
+            Ok(users) => users,
+            Err(err) => {
+                println!("Err:{}\nQuery:{}",err, debug_query::<Pg, _>(&query).to_string());
+                panic!();
+            }
         };
         Ok(users)
     }
