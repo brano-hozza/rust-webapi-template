@@ -46,27 +46,14 @@ impl UserRepository for UserRepositoryImpl {
         let query = diesel::insert_into(users::table)
             .values(&record);
 
-        let user = match query.get_result::<User>(conn) {
-            Ok(user) => {user}
-            Err(err) => {
-                println!("Err:{}\nQuery:{}",err, debug_query::<Pg, _>(&query).to_string());
-                panic!();
-            }
-        };
-
+        let user = query.get_result::<User>(conn)?;
         Ok(user)
     }
 
     fn find_all(&self) -> Result<Vec<User>, AppError> {
         let conn = &mut self.pool.get()?;
         let query = users::table.select(User::as_select());
-        let users = match query.get_results(conn){
-            Ok(users) => users,
-            Err(err) => {
-                println!("Err:{}\nQuery:{}",err, debug_query::<Pg, _>(&query).to_string());
-                panic!();
-            }
-        };
+        let users = query.get_results(conn)?;
         Ok(users)
     }
 }

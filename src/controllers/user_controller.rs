@@ -11,24 +11,14 @@ pub fn routes(cfg: &mut ServiceConfig)  {
         .service(create_user);
 }
 
-#[get("/")]
+#[get("")]
 async fn get_all_users(data: web::Data<AppState>) -> Result<HttpResponse, AppError> {
-    match data.di_container.user_service.get_all_users() {
-        Ok(users) =>  Ok(HttpResponse::Ok().json(users)),
-        Err(err) => {
-            println!("Error: {}", err);
-            Ok(HttpResponse::NotFound().finish())
-        }
-    }
+    let users = data.di_container.user_service.get_all_users()?;
+    Ok(HttpResponse::Ok().json(users))
 }
 
-#[post("/")]
+#[post("")]
 async fn create_user(data: web::Data<AppState>, user_dto: web::Json<SignupUserDTO>) -> Result<HttpResponse, AppError> {
-    match data.di_container.user_service.sign_up(user_dto) {
-        Ok(user) => Ok(HttpResponse::Ok().json(user)),
-        Err(err) => {
-            println!("Error: {}", err);
-            Ok(HttpResponse::NotFound().finish())
-        }
-    }
+    let user = data.di_container.user_service.sign_up(user_dto)?;
+    Ok(HttpResponse::Created().json(user))
 }

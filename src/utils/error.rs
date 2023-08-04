@@ -23,6 +23,10 @@ pub enum AppError {
     #[error("Not Found: {}", _0)]
     NotFound(JsonValue),
 
+    // 409
+    #[error("Exists: {}", _0)]
+    Exists(JsonValue),
+
     // 422
     #[error("Unprocessable Entity: {}", _0)]
     UnprocessableEntity(JsonValue),
@@ -38,6 +42,7 @@ impl actix_web::error::ResponseError for AppError {
             AppError::Unauthorized(_) => StatusCode::UNAUTHORIZED,
             AppError::Forbidden(_) => StatusCode::FORBIDDEN,
             AppError::NotFound(_) => StatusCode::NOT_FOUND,
+            AppError::Exists(_) => StatusCode::CONFLICT,
             AppError::UnprocessableEntity(_) => StatusCode::UNPROCESSABLE_ENTITY,
             AppError::InternalServerError => StatusCode::INTERNAL_SERVER_ERROR,
         }
@@ -47,6 +52,7 @@ impl actix_web::error::ResponseError for AppError {
             AppError::Unauthorized(ref msg) => HttpResponse::Unauthorized().json(msg),
             AppError::Forbidden(ref msg) => HttpResponse::Forbidden().json(msg),
             AppError::NotFound(ref msg) => HttpResponse::NotFound().json(msg),
+            AppError::Exists(ref msg) => HttpResponse::Conflict().json(msg),
             AppError::UnprocessableEntity(ref msg) => HttpResponse::UnprocessableEntity().json(msg),
             AppError::InternalServerError => {
                 HttpResponse::InternalServerError().json("Internal Server Error")
@@ -79,7 +85,11 @@ impl From<DieselError> for AppError {
             DieselError::DatabaseError(kind, info) => {
                 if let DatabaseErrorKind::UniqueViolation = kind {
                     let message = info.details().unwrap_or_else(|| info.message()).to_string();
-                    AppError::UnprocessableEntity(json!({ "error": message }))
+                    if message.ends_with("already exists.") {
+                        AppError::Exists(json!({"error": message}))
+                    } else {
+                        AppError::UnprocessableEntity(json!({ "error": message }))
+                    }
                 } else {
                     AppError::InternalServerError
                 }
