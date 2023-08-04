@@ -9,6 +9,7 @@ mod repositories;
 mod services;
 mod utils;
 mod models;
+mod dtos;
 mod schema;
 mod app_state;
 mod middlewares;

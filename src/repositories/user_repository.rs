@@ -1,17 +1,18 @@
+use diesel::{debug_query, QueryDsl, RunQueryDsl, SelectableHelper};
+use diesel::pg::Pg;
 use crate::utils::db::DbPool;
-use uuid::Uuid;
-use crate::models::user::{UpdateUser, User};
+use crate::models::user::{SignupUser, User};
+use crate::schema::users;
 use crate::utils::error::AppError;
+use crate::utils::hasher;
 
 pub trait UserRepository: Send + Sync + 'static {
-    fn signup(
+    fn create<'a>(
         &self,
-        email: &str,
-        username: &str,
-        password: &str,
+        email: &'a str,
+        username: &'a str,
+        password: &'a str,
     ) -> Result<User, AppError>;
-    fn update(&self, user_id: Uuid, changeset: UpdateUser) -> Result<User, AppError>;
-    fn find(&self, user_id: Uuid) -> Result<User, AppError>;
     fn find_all(&self) -> Result<Vec<User>, AppError>;
 }
 
@@ -27,32 +28,42 @@ impl UserRepositoryImpl {
 }
 
 impl UserRepository for UserRepositoryImpl {
-    fn signup(
+    fn create<'a>(
         &self,
-        email: &str,
-        username: &str,
-        password: &str,
+        email: &'a str,
+        username: &'a str,
+        password: &'a str,
     ) -> Result<User, AppError> {
         let conn = &mut self.pool.get()?;
-        User::signup(conn, email, username, password)
-    }
+        let hashed_password = hasher::hash_password(password)?;
 
+        let record = SignupUser {
+            email,
+            username,
+            password: &hashed_password,
+        };
 
-    fn update(&self, user_id: Uuid, changeset: UpdateUser) -> Result<User, AppError> {
-        let conn = &mut self.pool.get()?;
-        let new_user = User::update(conn, user_id, changeset)?;
-        Ok(new_user)
-    }
+        let query = diesel::insert_into(users::table)
+            .values(&record);
 
-    fn find(&self, user_id: Uuid) -> Result<User, AppError> {
-        let conn = &mut self.pool.get()?;
-        let user = User::find(conn, user_id)?;
+        let user = match query.get_result::<User>(conn) {
+            Ok(user) => {user}
+            Err(err) => {
+                println!("Err:{}\nQuery:{}",err, debug_query::<Pg, _>(&query).to_string());
+                panic!();
+            }
+        };
+
         Ok(user)
     }
 
     fn find_all(&self) -> Result<Vec<User>, AppError> {
         let conn = &mut self.pool.get()?;
-        let users = User::find_all(conn)?;
+        let t = users::table.select(User::as_select());
+        let users = match t.get_results(conn).ok() {
+            None => Vec::<User>::new(),
+            Some(users) => users
+        };
         Ok(users)
     }
 }
