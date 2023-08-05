@@ -9,7 +9,7 @@ pub struct DiContainer {
      * User
      */
     pub user_repository: UserRepositoryImpl,
-    pub user_service: UserServiceImpl
+    pub user_service: UserServiceImpl,
 }
 
 impl DiContainer {
@@ -21,7 +21,7 @@ impl DiContainer {
         Self {
             // User
             user_repository,
-            user_service
+            user_service,
         }
     }
 }

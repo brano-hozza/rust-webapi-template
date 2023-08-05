@@ -1,5 +1,5 @@
-use diesel::{QueryDsl, RunQueryDsl, SelectableHelper};
 use diesel::prelude::*;
+use diesel::{QueryDsl, RunQueryDsl, SelectableHelper};
 use uuid::Uuid;
 
 use crate::models::user::{SignupUser, UpdateUser, User};
@@ -49,8 +49,7 @@ impl UserRepository for UserRepositoryImpl {
             password: &hashed_password,
         };
 
-        let query = diesel::insert_into(users::table)
-            .values(&record);
+        let query = diesel::insert_into(users::table).values(&record);
 
         let user = query.get_result::<User>(conn)?;
         Ok(user)
@@ -78,12 +77,9 @@ impl UserRepository for UserRepositoryImpl {
         Ok(user)
     }
 
-
     fn delete(&self, user_id: Uuid) -> Result<(), AppError> {
         let conn = &mut self.pool.get()?;
-        let query = diesel::delete(
-            users::dsl::users.filter(id.eq(user_id))
-        );
+        let query = diesel::delete(users::dsl::users.filter(id.eq(user_id)));
         query.execute(conn)?;
         Ok(())
     }

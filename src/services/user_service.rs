@@ -28,12 +28,15 @@ impl UserServiceImpl {
         self.user_repository.find_all()
     }
     pub fn get_user(&self, id: String) -> Result<User, AppError> {
-        self.user_repository.find(Uuid::from_str(id.as_str()).unwrap())
+        self.user_repository
+            .find(Uuid::from_str(id.as_str()).unwrap())
     }
     pub fn update_user(&self, id: String, user: UpdateUserDTO) -> Result<User, AppError> {
-        self.user_repository.update(Uuid::from_str(id.as_str()).unwrap(), UpdateUser::new(user))
+        self.user_repository
+            .update(Uuid::from_str(id.as_str()).unwrap(), UpdateUser::new(user))
     }
     pub fn delete_user(&self, id: String) -> Result<(), AppError> {
-        self.user_repository.delete(Uuid::from_str(id.as_str()).unwrap())
+        self.user_repository
+            .delete(Uuid::from_str(id.as_str()).unwrap())
     }
 }

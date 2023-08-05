@@ -4,16 +4,16 @@ extern crate log;
 use actix_web::middleware::Logger;
 use actix_web::{App, HttpServer};
 
+mod app_state;
 mod constants;
+mod controllers;
+mod dtos;
+mod middlewares;
+mod models;
 mod repositories;
+mod schema;
 mod services;
 mod utils;
-mod models;
-mod dtos;
-mod schema;
-mod app_state;
-mod middlewares;
-mod controllers;
 
 extern crate dotenv;
 
@@ -36,7 +36,7 @@ async fn main() -> std::io::Result<()> {
             .wrap(middlewares::cors::cors())
             .configure(controllers::api)
     })
-        .bind(constants::BIND)?
-        .run()
-        .await
+    .bind(constants::BIND)?
+    .run()
+    .await
 }

@@ -2,10 +2,10 @@ use actix_web::{http::StatusCode, HttpResponse};
 use bcrypt::BcryptError;
 use diesel::r2d2::{Error as R2D2Error, PoolError};
 use diesel::result::{DatabaseErrorKind, Error as DieselError};
+use serde::Serialize;
 use serde_json::json;
 use serde_json::Value as JsonValue;
 use std::convert::From;
-use serde::Serialize;
 use thiserror::Error;
 use uuid::Error as UuidError;
 

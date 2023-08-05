@@ -1,8 +1,8 @@
+use crate::constants::env_key;
 use diesel::pg::PgConnection;
 use diesel::r2d2::{ConnectionManager, Pool, PoolError};
 use dotenv::dotenv;
 use std::env;
-use crate::constants::env_key;
 
 pub type DbPool = Pool<ConnectionManager<PgConnection>>;
 
