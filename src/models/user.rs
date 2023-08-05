@@ -1,9 +1,10 @@
-use crate::schema::users;
 use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
-
 use uuid::Uuid;
+
+use crate::dtos::user::UpdateUserDTO;
+use crate::schema::users;
 
 #[derive(Identifiable, Queryable, Selectable, Serialize, Deserialize, Debug, Clone)]
 #[diesel(table_name = users)]
@@ -30,4 +31,14 @@ pub struct UpdateUser {
     pub email: Option<String>,
     pub username: Option<String>,
     pub password: Option<String>,
+}
+
+impl UpdateUser {
+    pub fn new(dto: UpdateUserDTO) -> UpdateUser {
+        UpdateUser {
+            email: dto.email,
+            username: dto.username,
+            password: dto.password,
+        }
+    }
 }

@@ -1,10 +1,11 @@
 use diesel::{QueryDsl, RunQueryDsl, SelectableHelper};
 use diesel::prelude::*;
 use uuid::Uuid;
-use crate::utils::db::DbPool;
-use crate::models::user::{SignupUser, User};
+
+use crate::models::user::{SignupUser, UpdateUser, User};
 use crate::schema::users;
 use crate::schema::users::id;
+use crate::utils::db::DbPool;
 use crate::utils::error::AppError;
 use crate::utils::hasher;
 
@@ -16,7 +17,8 @@ pub trait UserRepository: Send + Sync + 'static {
         password: &'a str,
     ) -> Result<User, AppError>;
     fn find_all(&self) -> Result<Vec<User>, AppError>;
-    fn find(&self, user_id: Uuid)-> Result<User, AppError>;
+    fn find(&self, user_id: Uuid) -> Result<User, AppError>;
+    fn update(&self, user_id: Uuid, user: UpdateUser) -> Result<User, AppError>;
     fn delete(&self, user_id: Uuid) -> Result<(), AppError>;
 }
 
@@ -65,6 +67,14 @@ impl UserRepository for UserRepositoryImpl {
         let conn = &mut self.pool.get()?;
         let query = users::table.find(user_id);
         let user = query.first(conn)?;
+        Ok(user)
+    }
+
+    fn update(&self, user_id: Uuid, user_data: UpdateUser) -> Result<User, AppError> {
+        let conn = &mut self.pool.get()?;
+        let target = users::table.find(user_id);
+        let query = diesel::update(target).set(user_data);
+        let user = query.get_result::<User>(conn)?;
         Ok(user)
     }
 
