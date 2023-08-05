@@ -8,6 +8,7 @@ use crate::utils::error::AppError;
 pub fn routes(cfg: &mut ServiceConfig)  {
     cfg
         .service(get_all_users)
+        .service(get_user)
         .service(create_user)
         .service(delete_user);
 }
@@ -18,6 +19,14 @@ async fn get_all_users(data: web::Data<AppState>) -> Result<HttpResponse, AppErr
     Ok(HttpResponse::Ok().json(users))
 }
 
+
+#[get("/{id}")]
+async fn get_user(data: web::Data<AppState>, path: web::Path<(String)>) -> Result<HttpResponse, AppError> {
+    let (id) = path.into_inner();
+    let user = data.di_container.user_service.get_user(id)?;
+    Ok(HttpResponse::Ok().json(user))
+}
+
 #[post("")]
 async fn create_user(data: web::Data<AppState>, user_dto: web::Json<SignupUserDTO>) -> Result<HttpResponse, AppError> {
     let user = data.di_container.user_service.sign_up(user_dto)?;
@@ -26,7 +35,7 @@ async fn create_user(data: web::Data<AppState>, user_dto: web::Json<SignupUserDT
 
 #[delete("/{id}")]
 async fn delete_user(data: web::Data<AppState>, path: web::Path<(String)>)  -> Result<HttpResponse, AppError> {
-    let (user_id) = path.into_inner();
-    data.di_container.user_service.delete_user(user_id)?;
+    let (id) = path.into_inner();
+    data.di_container.user_service.delete_user(id)?;
     Ok(HttpResponse::Ok().finish())
 }

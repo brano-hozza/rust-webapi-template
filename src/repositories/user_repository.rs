@@ -16,6 +16,7 @@ pub trait UserRepository: Send + Sync + 'static {
         password: &'a str,
     ) -> Result<User, AppError>;
     fn find_all(&self) -> Result<Vec<User>, AppError>;
+    fn find(&self, user_id: Uuid)-> Result<User, AppError>;
     fn delete(&self, user_id: Uuid) -> Result<(), AppError>;
 }
 
@@ -59,6 +60,14 @@ impl UserRepository for UserRepositoryImpl {
         let users = query.get_results(conn)?;
         Ok(users)
     }
+
+    fn find(&self, user_id: Uuid) -> Result<User, AppError> {
+        let conn = &mut self.pool.get()?;
+        let query = users::table.find(user_id);
+        let user = query.first(conn)?;
+        Ok(user)
+    }
+
 
     fn delete(&self, user_id: Uuid) -> Result<(), AppError> {
         let conn = &mut self.pool.get()?;

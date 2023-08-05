@@ -26,7 +26,10 @@ impl UserServiceImpl{
     pub fn get_all_users(&self) -> Result<Vec<User>, AppError>{
         self.user_repository.find_all()
     }
-    pub fn delete_user(&self, user_id: String) -> Result<(), AppError>{
-        self.user_repository.delete(Uuid::from_str(user_id.as_str()).unwrap())
+    pub fn get_user(&self, id: String) -> Result<User, AppError> {
+        self.user_repository.find(Uuid::from_str(id.as_str()).unwrap())
+    }
+    pub fn delete_user(&self, id: String) -> Result<(), AppError>{
+        self.user_repository.delete(Uuid::from_str(id.as_str()).unwrap())
     }
 }
